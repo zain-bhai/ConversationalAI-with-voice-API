@@ -165,9 +165,9 @@ class TTSRequest(BaseModel):
 async def text_to_speech(req: TTSRequest):
     try:
         tts = gTTS(text=req.text, lang=req.language_code)
-        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
         tts.save(tmp_file.name)
-        return FileResponse(tmp_file.name, media_type="audio/mpeg", filename="speech.mp3")
+        return FileResponse(tmp_file.name, media_type="audio/mpeg", filename="speech.wav")
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -217,3 +217,4 @@ async def speech_to_text(file: UploadFile = File(...)):
 @app.get("/")
 def root():
     return {"message": "Dr. HealBot API is running and ready for consultation!"}
+
