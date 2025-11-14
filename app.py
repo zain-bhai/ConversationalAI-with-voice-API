@@ -164,13 +164,24 @@ class TTSRequest(BaseModel):
 @app.post("/tts")
 async def text_to_speech(req: TTSRequest):
     try:
+        # Step 1: Generate temporary MP3 from gTTS
+        tmp_mp3 = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
         tts = gTTS(text=req.text, lang=req.language_code)
-        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-        tts.save(tmp_file.name)
-        return FileResponse(tmp_file.name, media_type="audio/mpeg", filename="speech.wav")
+        tts.save(tmp_mp3.name)
+
+        # Step 2: Create actual WAV with RIFF header
+        tmp_wav = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+        audio = AudioSegment.from_mp3(tmp_mp3.name)
+        audio.export(tmp_wav.name, format="wav")
+
+        return FileResponse(
+            tmp_wav.name,
+            media_type="audio/wav",
+            filename="speech.wav"
+        )
+
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
 
 # -----------------------------
 #  SPEECH TO TEXT (NO CREDENTIALS)
@@ -217,4 +228,5 @@ async def speech_to_text(file: UploadFile = File(...)):
 @app.get("/")
 def root():
     return {"message": "Dr. HealBot API is running and ready for consultation!"}
+
 
