@@ -11,7 +11,7 @@ import os
 import tempfile
 import wave
 import json
-from pydub import AudioSegment
+import subprocess
 # -----------------------------
 #  LOAD ENVIRONMENT VARIABLES
 # -----------------------------
@@ -233,6 +233,7 @@ async def speech_to_text(file: UploadFile = File(...)):
 @app.get("/")
 def root():
     return {"message": "Dr. HealBot API is running and ready for consultation!"}
+
 
 
 
